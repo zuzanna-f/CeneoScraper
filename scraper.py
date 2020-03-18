@@ -9,13 +9,14 @@ url = "https://www.ceneo.pl/76891701#tab=reviews"
 #pobranie kodu HTML strony z adresu URL
 page_response = requests.get(url)
 page_tree = BeautifulSoup(page_response.text, 'html.parser')
-#print(page_tree.prettify())
+print(page_tree.prettify())
 
 #wybranie z kodu strony fragmentó odpowiadających poszczególnym opiniom
 opinions = page_tree.select("li.review-box")
 
 
 #ekstrakcja składowych dla pierwszej opinii z listy
+<<<<<<< HEAD
 for opinion in opinions:
     #opinion = opinions.pop()
     opinion_id = opinion["data-entry-id"]
