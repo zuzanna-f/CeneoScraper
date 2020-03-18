@@ -17,7 +17,6 @@ opinions = page_tree.select("li.review-box")
 
 #ekstrakcja składowych dla pierwszej opinii z listy
 for opinion in opinions:
-    #opinion = opinions.pop()
     opinion_id = opinion["data-entry-id"]
 
     #print(opinion_id)
