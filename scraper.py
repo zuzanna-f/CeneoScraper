@@ -4,6 +4,30 @@ from bs4 import BeautifulSoup
 import pprint
 import json
 
+#funkcja do ekstrakcji składowych opinii
+def extract_feature(opinion, selector, attribute = None):
+    try:
+        if not attribute:
+            return opinion.select(selector).pop().get_text().strip()
+        else: 
+            return opinion.select(selector).pop()[attribute]
+    except IndexError:
+        return None
+
+#lista składowych opinii wraz z selektorami i atrybutami
+selectors = {
+    "author":['div.reviewer-name-line'],
+    "recomendation":['div.product-review-summary > em'],
+    "stars":['span.review-score-count'],
+    "content":['p.product-review-body'],
+    "pros":['div.pros-cell > ul'],
+    "cons":['div.cons-cell > ul'],
+    "useful":['button.vote-yes', 'data-total-vote'],
+    "useless":['button.vote-no', 'data-total-vote'],
+    "purchased":['div.product-review-pz'],
+    "purchase_date":['span.review-time > time:nth-of-type(1)', "datetime"],
+    "review_date":['span.review-time > time:nth-of-type(2)', "datetime"]
+} 
 
 #adres URL strony z opiniami
 url_prefix = "https://www.ceneo.pl"
@@ -20,66 +44,32 @@ while url is not None:
     page_tree = BeautifulSoup(page_response.text, 'html.parser')
 
     #wybranie z kodu strony fragmentów odpowiadających poszczególnym opiniom
-    opinions = page_tree.select("li.review-box")
+    opinions = page_tree.select("li.js_product-review")
 
     #ekstrakcja składowych dla pierwszej opinii z listy
     for opinion in opinions:
-        opinion_id = opinion["data-entry-id"]
-        author = opinion.select('div.reviewer-name-line').pop().string.strip()
-        try:
-            recomendation = opinion.select('div.product-review-summary > em').pop().string.strip()
-        except IndexError:
-            recomendation = None
-        stars = opinion.select('span.review-score-count').pop().string.strip()
-        try:
-            purchased = opinion.select('div.product-review-pz').pop().string
-        except IndexError:
-            purchased = None
-        useful = opinion.select('button.vote-yes').pop()['data-total-vote']
-        useless = opinion.select('button.vote-no').pop()['data-total-vote']
-        content = opinion.select('p.product-review-body').pop().get_text().strip()
-        try:
-            cons = opinion.select('div.cons-cell > ul').pop().get_text().strip()
-        except IndexError:
-            cons = None
-        try:
-            pros = opinion.select('div.pros-cell > ul').pop().get_text().strip()
-        except IndexError:
-            pros = None
-        date = opinion.select('span.review-time > time')
-        review_date = date.pop(0)["datetime"]
-        try:
-            purchase_date = date.pop(0)["datetime"]
-        except IndexError:
-            purchase_date = None
 
-        opinion_dict = {
-            "opinion_id":opinion_id,
-            "author":author,
-            "recomendation":recomendation,
-            "stars":stars,
-            "content":content,
-            "pros":pros,
-            "cons":cons,
-            "useful":useful,
-            "useless":useless,
-            "purchased":purchased,
-            "purchase_date":purchase_date,
-            "review_date":review_date
-        } 
-        opinions_list.append(opinion_dict)
+        features = {key:extract_feature(opinion, *args)
+                    for key, args in selectors.items()}    
+        features["opinion_id"] = int(opinion["data-entry-id"])
+        features["purchased"] = True if features["purchased"] == "Opinia potwierdzona zakupem" else False
+
+        opinions_list.append(features)
 
     try:
         url = url_prefix+page_tree.select("a.pagination__next").pop()["href"]
     except IndexError:
-         url = None
+        url = None
 
     print("url:", url)
 
+with open(product_id+".json", 'w', encoding="UTF-8") as fp:
+    json.dump(opinions_list, fp, ensure_ascii=False, separators=(",", ": "), indent=4)
 
-with open(product_id+".json", 'w') as fp:
-    json.dump(opinions_list, fp, ensure_ascii=False)
+    
 
 # print(len(opinions_list))
 #for opinion in opinions_list:
     #pprint.pprint(opinion)
+
+#76891701
