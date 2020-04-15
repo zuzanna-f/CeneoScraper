@@ -33,13 +33,13 @@ ax.set_title("Rekomendacje")
 plt.savefig("figures/"+product_id+"_pie.png")
 plt.close()
 
-# average_score = opinions["stars"].mean()
-# pros = opinions["pros"].count()
-# cons = opinions["cons"].count()
-# purchased = opinions["purchased"].sum()
+average_score = opinions["stars"].mean()
+pros = opinions["pros"].count()
+cons = opinions["cons"].count()
+purchased = opinions["purchased"].sum()
 
-# print(average_score, pros, cons, purchased)
+print(average_score, pros, cons, purchased)
 
-# stars_purchased = pd.crosstab(opinions["stars"], opinions["purchased"])
+stars_purchased = pd.crosstab(opinions["stars"], opinions["purchased"])
 
-# print(stars_purchased)
+print(stars_purchased)
