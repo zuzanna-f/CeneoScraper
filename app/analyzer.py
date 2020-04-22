@@ -5,12 +5,12 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 #wyświetlanie zawartości katalogu opinions
-print(os.listdir("./opinions"))
+print(os.listdir("./app/opinions"))
 
 #wczytanie id produktu, którego opinie będą analizowane
 product_id = input("Podaj kod produktu: ")
 
-opinions = pd.read_json("opinions/"+product_id+".json")
+opinions = pd.read_json("app/opinions/"+product_id+".json")
 opinions = opinions.set_index("opinion_id")
 
 opinions["stars"] = opinions["stars"].map(lambda x: float(x.split("/")[0].replace(",", ".")))
