@@ -1,1 +1,1 @@
-from app import apppyt
+from app import app
