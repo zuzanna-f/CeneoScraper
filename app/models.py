@@ -54,6 +54,7 @@ class Opinion:
         "purchase_date":['span.review-time > time:nth-of-type(1)',"datetime"],
         "review_date":['span.review-time > time:nth-of-type(2)',"datetime"]
     }
+
     #konstruktor (inincjalizator) obiektu klasy
     def __init__(self, opinion_id=None, author=None, recommendation=None, stars=None, content=None, 
                 pros=None, cons=None, useful=None, useless=None, purchased=None, purchase_date=None, review_date=None):
@@ -69,6 +70,7 @@ class Opinion:
         self.purchased = purchased
         self.purchase_date = purchase_date
         self.review_date = review_date
+
     # reprezentacja tekstowa obiektu klasy
     def __str__(self):
         return f'opinion id: {self.opinion_id}\n author: {self.author}\n'
@@ -90,7 +92,6 @@ class Opinion:
         features["pros"] = remove_whitespaces(features["pros"])
         features["cons"] = remove_whitespaces(features["cons"])
         pass
-
 
 product = Product("92745077")
 product.extract_product()
