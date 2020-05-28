@@ -2,7 +2,9 @@
 import requests
 from bs4 import BeautifulSoup
 from enum import Enum, auto
-import utils
+import app
+from app.utils import extract_feature, remove_whitespaces
+import json
 
 class Product():
     def __init__(self, product_id=None, name=None, opinions=[]):
@@ -48,11 +50,27 @@ class Product():
     def __str__(self):
         return f'product id: {self.product_id}\n nazwa: {self.name}\n\n'+'\n'.join(str(opinion) for opinion in self.opinions)
     
-    def __repr__(self):
-        pass
-
+    def __dict__(self):
+        return {
+            "product id": self.product_id,
+            "product name": self.name,
+            "opinions": [opinion.__dict__() for opinion in self.opinions]
+        }
+    
     def save_product(self):
-        pass
+        with open("app/opinions/"+self.product_id+".json", 'w', encoding="UTF-8") as fp:
+            json.dump(self.__dict__(), fp, ensure_ascii=False, separators=(",",": "), indent=4 )
+
+    def read_product(self, product_id):
+        with open("app/opinions/"+product_id+".json", 'r') as f:
+            pr = json.loads(f)
+        self.product_id = product_id
+        self.name = pr['name']
+        opinions = pr['opinions']
+        for opinion in opinions:
+            op = Opinion()
+            op.from_dict(opinion)
+            self.opinions.append(op)
 
 class Opinion:
     #lista składowych opinii wraz z selektorami i atrybutami
@@ -88,29 +106,33 @@ class Opinion:
 
     # reprezentacja tekstowa obiektu klasy
     def __str__(self):
-        return f'opinion id: {self.opinion_id}\nauthor: {self.author}\npros: {self.pros}\n'
+        return '\n'.join(key+': '+('' if getattr(self,key) is None else getattr(self,key)) for key in self.selectors.keys())
 
     #reprezentacja słownikowa obiektu
-    def __repr__(self):
-        pass
-    #
-
+    def __dict__(self):
+        features = {key:('' if getattr(self,key) is None else getattr(self,key))
+                    for key in self.selectors.keys()}
+        features['opinion_id'] = self.opinion_id
+        return features
+    
     def extract_opinion(self, opinion):
         for key, args in self.selectors.items():
-            setattr(self, key, utils.extract_feature(opinion, *args))
+            setattr(self, key, extract_feature(opinion, *args))
         self.opinion_id = int(opinion["data-entry-id"])
-        pass
 
     def transform_opinion(self):
-        features["purchased"] = True if features["purchased"] == "Opinia potwierdzona zakupem" else False
-        features["useful"] = int(features["useful"])
-        features["useless"] = int(features["useless"])
-        features["content"] = remove_whitespaces(features["content"])
-        features["pros"] = remove_whitespaces(features["pros"])
-        features["cons"] = remove_whitespaces(features["cons"])
-        pass
+        self.purchased = True if self.purchased == "Opinia potwierdzona zakupem" else False
+        self.useful = int(self.useful)
+        self.useless = int(self.useless)
+        self.content = remove_whitespaces(self.content)
+        self.pros = remove_whitespaces(self.pros)
+        self.cons = remove_whitespaces(self.cons)
+
+    def from_dict(self, opinion_dict):
+        for key, value in opinion_dict.items():
+            setattr(self, key, value)
 
 
-product = Product("63951365")
-product.extract_product()
-print(str(product))
+#product = Product("63951365")
+#product.extract_product()
+#print(json.dumps(product.__dict__, indent=4, ensure_ascii=False))
