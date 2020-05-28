@@ -1,5 +1,5 @@
 from app import app
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
 from flaskext.markdown import Markdown
 from app.forms import ProductForm
 from app.models import Product, Opinion
