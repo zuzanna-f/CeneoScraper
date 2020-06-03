@@ -26,7 +26,7 @@
 - wykonanie prostych obliczeń na danych
 - wykonanie prostych wykresów
 ## Etap 6 - interfejs webowy aplikacji (framework Flask)
-= zainstalowanie i uruchamianie Flask'a
+- zainstalowanie i uruchamianie Flask'a
 - struktura aplikacji 
 >    /CeneoScraper  
 >>        /run.py  
