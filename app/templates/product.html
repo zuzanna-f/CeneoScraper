@@ -4,3 +4,10 @@
         {{ table|safe }}
     {% endfor %}
 {% endblock %}
+{% block scripts %}
+    <script>
+        $(document).ready( function () {
+            $('#opinions').DataTable();
+        } );
+    </script>
+{% endblock %}

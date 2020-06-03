@@ -4,7 +4,7 @@ from flaskext.markdown import Markdown
 from app.forms import ProductForm
 from app.models import Product, Opinion
 import requests
-
+import pandas as pd
 app.config['SECRET_KEY'] = "Klucz"
 
 Markdown(app)
@@ -17,7 +17,7 @@ def index():
 @app.route('/about')
 def about():
     content = ""
-    with open("README.md", "r", encoding="UTF-8") as f:
+    with open("README.md", "r",encoding="UTF-8") as f:
         content = f.read()
     return render_template("about.html", text=content)
 
@@ -42,10 +42,17 @@ def products():
 
 @app.route('/product/<product_id>')
 def product(product_id):
-    product = Product()
-    product.read_product(product_id)
-    return product
-    #return render_template("product.html")
+    product = Product(product_id)
+    product.read_product()
+    opinions = pd.DataFrame.from_records([opinion.__dict__() for opinion in product.opinions])
+    # opinions = opinions.set_index("opinion_id")
+    opinions["stars"] = opinions["stars"].map(lambda x: float(x.split("/")[0].replace(",", ".")))
+    return render_template("product.html", tables=[
+        opinions.to_html(
+            classes='table table-bordered table-sm table-responsive',
+            table_id="opinions"
+        )
+    ])
 
 @app.route('/analyzer/<product_id>')
 def analyzer():
